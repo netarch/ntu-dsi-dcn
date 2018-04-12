@@ -116,6 +116,7 @@ char * toString(int a,int b, int c, int d){
 int 
 	main(int argc, char *argv[])
 {
+   double simTimeInSec = 100.0;
 //=========== Define parameters based on value of k ===========//
 //
 	int k = 4;			// number of ports per switch
@@ -152,7 +153,7 @@ int
 	int port = 9;
 	int packetSize = 1024;		// 1024 bytes
 	char dataRate_OnOff [] = "1Mbps";
-	char maxBytes [] = "0";		// unlimited
+	char maxBytes [] = "100000";		// unlimited
 
 // Initialize parameters for Csma and PointToPoint protocol
 //
@@ -173,9 +174,11 @@ int
 	InternetStackHelper internet;
 	Ipv4NixVectorHelper nixRouting; 
 	Ipv4StaticRoutingHelper staticRouting;
+	Ipv4GlobalRoutingHelper globalRouting;
 	Ipv4ListRoutingHelper list;
 	list.Add (staticRouting, 0);	
 	list.Add (nixRouting, 10);	
+	//list.Add (globalRouting, 20);	
 	internet.SetRoutingHelper(list);
 
 //=========== Creation of Node Containers ===========//
@@ -228,7 +231,7 @@ int
 	        oo.SetAttribute("OnTime",RandomVariableValue(ExponentialVariable(1)));  
 	        oo.SetAttribute("OffTime",RandomVariableValue(ExponentialVariable(1))); 
  	        oo.SetAttribute("PacketSize",UintegerValue (packetSize));
- 	       	oo.SetAttribute("DataRate",StringValue (dataRate_OnOff));      
+ 	        oo.SetAttribute("DataRate",StringValue (dataRate_OnOff));      
 	        oo.SetAttribute("MaxBytes",StringValue (maxBytes));
 
 	// Randomly select a client
@@ -356,9 +359,16 @@ int
 	std::cout << "Start Simulation.. "<<"\n";
 	for (i=0;i<total_host;i++){
 		app[i].Start (Seconds (0.0));
-  		app[i].Stop (Seconds (100.0));
+  		app[i].Stop (Seconds (simTimeInSec));
 	}
   	Ipv4GlobalRoutingHelper::PopulateRoutingTables ();
+   Ptr<OutputStreamWrapper> routingStream = Create<OutputStreamWrapper> (&std::cout);
+	for (i=0;i<num_pod;i++){
+		for (j=0;j<num_bridge; j++){
+         globalRouting.PrintRoutingTableAt (Seconds (5.0), edge[i].Get(j), routingStream);
+      }
+   }
+
 // Calculate Throughput using Flowmonitor
 //
   	FlowMonitorHelper flowmon;
