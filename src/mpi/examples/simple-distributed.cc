@@ -42,6 +42,7 @@
  */
 
 #include "ns3/core-module.h"
+#include <string>
 #include "ns3/network-module.h"
 #include "ns3/mpi-interface.h"
 #include "ns3/ipv4-global-routing-helper.h"
@@ -54,9 +55,7 @@
 #include "ns3/on-off-helper.h"
 #include "ns3/packet-sink-helper.h"
 
-#ifdef NS3_MPI
 #include <mpi.h>
-#endif
 
 using namespace ns3;
 
@@ -243,6 +242,20 @@ main (int argc, char *argv[])
     }
 
   Simulator::Stop (Seconds (5));
+
+  string systemId_s = "0";
+  if(systemId == 1) systemId_s = "1";
+  AsciiTraceHelper ascii;
+  //Ptr<OutputStreamWrapper> ascii_fs = ascii.CreateFileStream ("/home/vipulharsh/jellyfish/ns3/ntu-nsi-dcn-forked/statistics/ascii_logs/distributedfts" + systemId_s + ".tr");
+  routerLink.EnableAsciiAll (ascii.CreateFileStream ("/home/vipulharsh/jellyfish/ns3/ntu-nsi-dcn-forked/statistics/ascii_logs/distributedy" + systemId_s + ".tr"));
+  //for(int i=0; i<num_tor; i++){
+     //if(getRackRank(i, systemCount) == systemId){
+     //p2p.EnableAscii(ascii_fs, rackhosts[i]);
+     //}
+  //}
+
+
+
   Simulator::Run ();
   Simulator::Destroy ();
   // Exit the MPI execution environment

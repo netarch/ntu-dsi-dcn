@@ -13,14 +13,18 @@ root = tree.getroot()
 bg_flowids = []
 fg_flowids = []
 
+
+bg_port = '9'
+fg_port = '10'
+
 for child in root:
    #print child.tag, child.attrib
    if(child.tag == 'Ipv4FlowClassifier'):
       for flow in child:
          #print flow.tag, flow.attrib
-         if(flow.attrib['sourcePort']=='10'):
+         if(flow.attrib['sourcePort']==fg_port):
             fg_flowids.append(flow.attrib['flowId'])
-         elif(flow.attrib['sourcePort']=='9'):
+         elif(flow.attrib['sourcePort']==bg_port):
             bg_flowids.append(flow.attrib['flowId'])
 
 #print "|bg_flows|: ", len(bg_flowids)
