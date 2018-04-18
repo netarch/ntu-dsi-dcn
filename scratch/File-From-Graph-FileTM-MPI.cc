@@ -150,6 +150,7 @@ int
    // Distributed simulation setup
    MpiInterface::Enable (&argc, &argv);
    GlobalValue::Bind ("SimulatorImplementationType", StringValue ("ns3::DistributedSimulatorImpl"));
+   GlobalValue::Bind ("ChecksumEnabled", BooleanValue (false));
 
    uint32_t systemId = MpiInterface::GetSystemId ();
    uint32_t systemCount = MpiInterface::GetSize ();
@@ -167,13 +168,17 @@ int
    string background_datarate = argv[5];
 
 
+   cout<<"Setting resolution to "<<Time::NS<<endl;
+   Time::SetResolution (Time::NS);
+
+
    cout<<"Running topology: "<<topology_filename<<", output result to "<<result_filename<<endl;
    cout<<"Setting drop queue limit: "<<drop_queue_limit<<endl;
 
   Config::SetDefault ("ns3::DropTailQueue::MaxPackets", UintegerValue (drop_queue_limit));
 
 //==== Simulation Parameters ====//
-   double simTimeInSec = 1000000.0;
+   double simTimeInSec = 10.0;
 	bool onOffApplication = false;	
 
 
@@ -274,7 +279,6 @@ int
                }
             }
          }
-
 /*
          static char* getHostIpAddress(int host){
             int rack = getHostRack(host);
@@ -395,12 +399,12 @@ int
 		internet.Install (rackhosts[i]);		
 	}
 
-
 //=========== Initialize settings for On/Off Application ===========//
 //
-
 // Generate traffics for the simulation
 //
+
+   srand(7);
 
    cout<<"Creating background application .... "<<endl;
 
@@ -409,7 +413,7 @@ int
       //cout<<"row.size(): "<<serverTM[i].size()<<endl;
       max_traffic = max(max_traffic, *std::max_element(serverTM[i].begin(),serverTM[i].end()));
    }
-   double traffic_wt = 0.0001;
+   double traffic_wt = 0.001;
    cout<<"Max Traffic: "<<max_traffic<<", Weighted: "<<max_traffic * traffic_wt<<endl;
 
 	ApplicationContainer** background_app = new ApplicationContainer*[total_host];
@@ -567,8 +571,6 @@ int
    Ptr<OutputStreamWrapper> routingStream = Create<OutputStreamWrapper> (&std::cout);
    //for(int i=0; i<num_tor; i++)
    //   globalRouting.PrintRoutingTableAt (Seconds (5.0), tors.Get(i), routingStream);
-   //for(int i=0; i<num_tor; i++)
-   //   globalRouting.PrintRoutingTableAt (Seconds (10.0), tors.Get(i), routingStream);
 
    std::cout << "Start Simulation.. "<<"\n";
    for (int i=0;i<total_host;i++){
@@ -578,7 +580,7 @@ int
             int bytes = truncateBytes((int)(serverTM[i][j] * traffic_wt));
             if(bytes < 1) continue;
             //background_app[i][j].Start (Seconds (1.0));
-            background_app[i][j].Start (Seconds (rand() * 100.0/RAND_MAX));
+            background_app[i][j].Start (Seconds (rand() * 0.01/RAND_MAX));
             background_app[i][j].Stop (Seconds (simTimeInSec));
          }
       }
@@ -610,7 +612,7 @@ int
   	Simulator::Run ();
 
   	//monitor->CheckForLostPackets ();
-  	//monitor->SerializeToXmlFile(result_filename+"."+systemId_s, true, true);
+   //monitor->SerializeToXmlFile(result_filename+"."+systemId_s, true, true);
 
 	std::cout << "Simulation finished "<<"\n";
 
