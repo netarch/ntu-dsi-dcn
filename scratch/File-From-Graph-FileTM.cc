@@ -479,8 +479,8 @@ int
       for (int j=0;j<total_host;j++){
          int bytes = truncateBytes((int)(serverTM[i][j] * traffic_wt));
          if(bytes < 1) continue;
-		   //flow_app[i][j].Start (Seconds (1.0));
-		   flow_app[i][j].Start (Seconds (rand() * 100.0/RAND_MAX));
+		   flow_app[i][j].Start (Seconds (1.0));
+		   //flow_app[i][j].Start (Seconds (rand() * 100.0/RAND_MAX));
   		   flow_app[i][j].Stop (Seconds (simTimeInSec));
       }
 	}
